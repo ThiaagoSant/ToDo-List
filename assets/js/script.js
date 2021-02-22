@@ -1,59 +1,80 @@
-let trashElement = document.querySelectorAll('span.trash');
-const createTodoInput = document.querySelector('.create-todo input'),
-  createTodoBtn = document.querySelector('.create-todo button'),
-  todoList = document.querySelector('.todo-list'),
-  totalTasks = document.querySelector('.total-tasks'),
-  clearAllBtn = document.querySelector('.removeAll');
+const createTodoInput = document.querySelector(".create-todo input"),
+  createTodoBtn = document.querySelector(".create-todo button"),
+  todoList = document.querySelector(".todo-list"),
+  totalTasks = document.querySelector(".total-tasks"),
+  clearAllBtn = document.querySelector(".removeAll");
 
-const createTask = () => {
-  const task = createTodoInput.value,
-    allTasks = ++todoList.children.length;
-  let layout = `<li>${task}<span class="trash"><i class="fas fa-trash"></i></span></li>`;
+const showTasks = () => {
+  let getLocalStorage = localStorage.getItem("New Todo"),
+    layout = "";
 
-  todoList.innerHTML += layout;
-  totalTasks.innerText = allTasks;
-  createTodoInput.value = '';
-  task.trim() && createTodoBtn.setAttribute('disabled', '');
+  getLocalStorage == null
+    ? (listArray = [])
+    : (listArray = JSON.parse(getLocalStorage));
 
-  trashElement = document.querySelectorAll('.trash');
-  trashElement.forEach((trash) => trash.addEventListener('click', removeTask));
+  listArray.forEach(
+    (task, index) =>
+      (layout += `<li>${task}<span onclick="removeTask(${index})" class="trash"><i class="fas fa-trash"></i></span></li>`)
+  );
 
+  todoList.innerHTML = layout;
+  totalTasks.innerText = listArray.length;
+  createTodoInput.value.trim() && createTodoBtn.setAttribute("disabled", "");
+  createTodoInput.value = "";
+
+  const validationClearAllBtn = () =>
+    listArray.length > 0
+      ? clearAllBtn.removeAttribute("disabled")
+      : clearAllBtn.setAttribute("disabled", "");
   validationClearAllBtn();
 };
 
-createTodoBtn.addEventListener('click', createTask);
+showTasks();
 
-const removeTask = ({ currentTarget }) => {
-  const allTasks = --todoList.children.length;
-  currentTarget.parentElement.remove();
-  totalTasks.innerText = allTasks;
+const createTask = () => {
+  const task = createTodoInput.value;
+  let getLocalStorage = localStorage.getItem("New Todo");
 
-  validationClearAllBtn();
+  getLocalStorage == null
+    ? (listArray = [])
+    : (listArray = JSON.parse(getLocalStorage));
+
+  listArray.push(task);
+  localStorage.setItem("New Todo", JSON.stringify(listArray));
+
+  showTasks();
+};
+
+createTodoBtn.addEventListener("click", createTask);
+
+const removeTask = (index) => {
+  let getLocalStorage = localStorage.getItem("New Todo");
+
+  listArray = JSON.parse(getLocalStorage);
+  listArray.splice(index, 1);
+  localStorage.setItem("New Todo", JSON.stringify(listArray));
+
+  showTasks();
 };
 
 const clearAllTasks = () => {
-  trashElement.forEach((element) => element.parentElement.remove());
-  totalTasks.innerText = '0';
+  listArray = [];
+  localStorage.setItem("New Todo", JSON.stringify(listArray));
 
-  validationClearAllBtn();
+  showTasks();
 };
 
-clearAllBtn.addEventListener('click', clearAllTasks);
-
-const validationClearAllBtn = () => {
-  totalTasks.innerText > 0
-    ? clearAllBtn.removeAttribute('disabled')
-    : clearAllBtn.setAttribute('disabled', '');
-};
+clearAllBtn.addEventListener("click", clearAllTasks);
 
 const validationCreateTodo = (srcElement) => {
   const createTodoBtn = srcElement.nextElementSibling,
     currentTarget = srcElement;
+
   currentTarget.value.trim()
-    ? createTodoBtn.removeAttribute('disabled')
-    : createTodoBtn.setAttribute('disabled', '');
+    ? createTodoBtn.removeAttribute("disabled")
+    : createTodoBtn.setAttribute("disabled", "");
 };
 
 const validateTodoList = ({ srcElement }) => validationCreateTodo(srcElement);
 
-createTodoInput.addEventListener('keyup', validateTodoList);
+createTodoInput.addEventListener("keyup", validateTodoList);
