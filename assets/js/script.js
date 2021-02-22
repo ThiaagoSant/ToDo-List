@@ -1,41 +1,59 @@
-const createTodoInput = document.querySelector(".create-todo input"),
-  createTodoBtn = document.querySelector(".create-todo button"),
-  todoList = document.querySelector(".todo-list"),
-  totalTasks = document.querySelector(".total-tasks"),
-  removeAll = document.querySelector(".removeAll");
-let trashElement = document.querySelectorAll("span.trash");
+let trashElement = document.querySelectorAll('span.trash');
+const createTodoInput = document.querySelector('.create-todo input'),
+  createTodoBtn = document.querySelector('.create-todo button'),
+  todoList = document.querySelector('.todo-list'),
+  totalTasks = document.querySelector('.total-tasks'),
+  clearAllBtn = document.querySelector('.removeAll');
 
-function createTodo() {
+const createTask = () => {
   const task = createTodoInput.value,
     allTasks = ++todoList.children.length;
   let layout = `<li>${task}<span class="trash"><i class="fas fa-trash"></i></span></li>`;
 
-  if (!task) {
-    alert("Digite alguma task");
-    createTodo.remove();
-  }
-
   todoList.innerHTML += layout;
   totalTasks.innerText = allTasks;
+  createTodoInput.value = '';
+  task.trim() && createTodoBtn.setAttribute('disabled', '');
 
-  trashElement = document.querySelectorAll(".trash");
-}
+  trashElement = document.querySelectorAll('.trash');
+  trashElement.forEach((trash) => trash.addEventListener('click', removeTask));
 
-function removeTodo({ currentTarget }) {
+  validationClearAllBtn();
+};
+
+createTodoBtn.addEventListener('click', createTask);
+
+const removeTask = ({ currentTarget }) => {
   const allTasks = --todoList.children.length;
   currentTarget.parentElement.remove();
   totalTasks.innerText = allTasks;
-}
 
-function removeAllTodo() {
+  validationClearAllBtn();
+};
+
+const clearAllTasks = () => {
   trashElement.forEach((element) => element.parentElement.remove());
-  totalTasks.innerText = "0";
-}
+  totalTasks.innerText = '0';
 
-setInterval(() =>
-  trashElement.forEach((trash) => trash.addEventListener("click", removeTodo))
-);
+  validationClearAllBtn();
+};
 
-createTodoBtn.addEventListener("click", createTodo);
+clearAllBtn.addEventListener('click', clearAllTasks);
 
-removeAll.addEventListener("click", removeAllTodo);
+const validationClearAllBtn = () => {
+  totalTasks.innerText > 0
+    ? clearAllBtn.removeAttribute('disabled')
+    : clearAllBtn.setAttribute('disabled', '');
+};
+
+const validationCreateTodo = (srcElement) => {
+  const createTodoBtn = srcElement.nextElementSibling,
+    currentTarget = srcElement;
+  currentTarget.value.trim()
+    ? createTodoBtn.removeAttribute('disabled')
+    : createTodoBtn.setAttribute('disabled', '');
+};
+
+const validateTodoList = ({ srcElement }) => validationCreateTodo(srcElement);
+
+createTodoInput.addEventListener('keyup', validateTodoList);

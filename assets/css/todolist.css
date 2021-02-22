@@ -61,6 +61,11 @@ main {
   padding: 5px 14px;
 }
 
+.create-todo button:disabled {
+  background: rgb(82, 69, 131);
+  pointer-events: none;
+}
+
 .todos-wrapper li {
   background: #eaeaea;
   border-radius: 5px;
@@ -118,4 +123,9 @@ footer button {
   color: white;
   cursor: pointer;
   padding: 8px 13px;
+}
+
+footer button:disabled {
+  background: rgb(82, 69, 131);
+  pointer-events: none;
 }
